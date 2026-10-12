@@ -53,6 +53,32 @@ public class Point {
      * @throws NullPointerException if other is null
      */
     public Point(final Point other) {
+        // Four things are packed into this one line.
+        //
+        // 1. this(...) calls the OTHER constructor, Point(int, int), instead of
+        //    repeating its work. That is constructor chaining: the real setup and
+        //    the validation live in one constructor, and this one just feeds it.
+        //    Classic Java requires this(...) to be the first statement. Java 25
+        //    relaxes that a little (statements before it are allowed if they don't
+        //    touch the object being built), but putting it first is still the norm.
+        //
+        // 2. Objects.requireNonNull(other, message) throws a NullPointerException
+        //    with that message when other is null. When other is not null, it
+        //    RETURNS other. Because it hands its argument back, it can sit inline,
+        //    right where other is used: requireNonNull(other, ...).myX.
+        //
+        // 3. Arguments are evaluated left to right, so the null check runs before
+        //    anything reads other. By the time other.myY is evaluated, other is
+        //    known to be non-null. Put the check on the second argument instead
+        //    and other.myX would throw first, with the JVM's generic message
+        //    instead of the one written here.
+        //
+        // 4. other.myX reads a PRIVATE field of a different object. That is legal:
+        //    private means private to the Point class, not to one Point object, so
+        //    any Point's code can read any other Point's fields.
+        //
+        // Why throw at all instead of quietly making (0, 0)? Fail fast: a null
+        // here is a bug in the caller, and the exception points straight at it.
         this(Objects.requireNonNull(other, "other must not be null").myX, other.myY);
     }
 
