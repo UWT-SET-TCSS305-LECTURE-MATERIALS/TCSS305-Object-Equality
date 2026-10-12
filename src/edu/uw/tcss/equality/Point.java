@@ -129,68 +129,77 @@ public class Point {
         return value;
     }
 
-    // ================= equals: two versions, both commented out =================
+    // ===================== equals: two versions =====================
     //
-    // With both commented out, Point inherits Object's equals, which is just ==.
-    // Lecture: run PointTest first and watch the same-state tests fail, because two
-    // Points made from the same numbers are different objects. Then uncomment ONE
-    // version (never both: that is a duplicate method and will not compile).
+    // Version 1 (getClass) is live. Version 2 (instanceof) is commented out.
+    // Only one can be live at a time, or the class has two equals methods and
+    // won't compile.
     //
-    // Demo once a version is live: change its last line to compare only x, rerun,
-    // and watch testEqualsDifferentState fail.
+    // To swap them, select just the method lines of each version (from @Override
+    // to the closing brace) and press Cmd+/ (Ctrl+/ on Windows). The commented
+    // lines are written the way IntelliJ writes them, with // in the first
+    // column, so they toggle back in at the right indentation and Checkstyle
+    // stays quiet. The project's code style pins that setting.
+    //
+    // To see Point with no equals at all, comment out both. It then inherits
+    // Object's equals, which is just ==, and Checkstyle warns that hashCode has
+    // no matching equals.
+    //
+    // Demo: change the last line of the live version to compare only x, rerun,
+    // and testEqualsDifferentState fails.
     //
     // ---- Version 1: getClass() ----
     //
-    // Equal only when other is exactly a Point. A subclass instance is never equal
-    // to a Point, even one with the same x and y.
+    // Only an exact Point can be equal. A subclass object never equals a Point,
+    // even with the same x and y.
     //
-    //   + Symmetry is safe even if a subclass adds a field and its own equals.
-    //     Point3D can never equal a Point, in either direction.
-    //   + Matches the A1b/A1c spec: a StoreItem is never equal to a StoreBulkItem.
-    //   - Breaks substitutability. A subclass that adds nothing at all (one that
-    //     only overrides toString, or a proxy a framework generates) is never equal
-    //     to a Point with the same coordinates.
-    //   - Needs an explicit null check and an explicit cast.
+    // The upside is that symmetry can't break, even if a subclass like Point3D
+    // adds a field and its own equals. It's also what the A1b and A1c specs ask
+    // for: a StoreItem is never equal to a StoreBulkItem.
     //
-    // @Override
-    // public boolean equals(final Object other) {
-    //     if (this == other) {
-    //         return true;
-    //     }
-    //     if (other == null || getClass() != other.getClass()) {
-    //         return false;
-    //     }
-    //
-    //     final Point otherPoint = (Point) other;
-    //     return myX == otherPoint.myX && myY == otherPoint.myY;
-    // }
-    //
+    // The downside is that a subclass adding nothing at all (say it only
+    // overrides toString, or a framework generates it as a proxy) still never
+    // equals a Point with the same coordinates. You also write the null check
+    // and the cast yourself.
+
+    @Override
+    public boolean equals(final Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+
+        final Point otherPoint = (Point) other;
+        return myX == otherPoint.myX && myY == otherPoint.myY;
+    }
+
     // ---- Version 2: instanceof ----
     //
-    // Equal when other is a Point or any subclass of Point, with the same x and y.
-    // This is the version Effective Java (Item 10) recommends.
+    // A Point or any subclass of Point can be equal, as long as x and y match.
+    // Effective Java (Item 10) recommends this one.
     //
-    //   + Respects substitutability: anywhere a Point works, a subclass works,
-    //     equality included. Proxies and do-nothing subclasses compare correctly.
-    //   + null instanceof Point is false, so the null check comes free.
-    //   + The pattern variable (Point otherPoint) does the cast in the same step.
-    //   - If a subclass adds a field AND overrides equals, symmetry breaks:
-    //     point.equals(point3D) is true but point3D.equals(point) is false.
-    //     The usual fix is to make the class final, or to have the subclass hold a
-    //     Point (composition) instead of extending it.
+    // Subclasses keep working anywhere a Point works, equality included, so
+    // proxies and do-nothing subclasses compare the way you'd expect. The null
+    // check is free, since null instanceof Point is false, and the pattern
+    // variable (Point otherPoint) does the cast for you.
     //
-    // Why prefer it: most classes are final or never extended with new state, and
-    // for those instanceof is shorter, null-safe and plays well with frameworks.
-    // Reach for getClass() when a hierarchy really does add state, as A1b's does.
+    // The catch: if a subclass adds a field and overrides equals, symmetry
+    // breaks. point.equals(point3D) is true, but point3D.equals(point) is false.
+    // Making the class final avoids that, and so does having the "subclass" hold
+    // a Point instead of extending it.
     //
-    // @Override
-    // public boolean equals(final Object other) {
-    //     if (this == other) {
-    //         return true;
-    //     }
-    //     return other instanceof Point otherPoint
-    //         && myX == otherPoint.myX && myY == otherPoint.myY;
-    // }
+    // For final classes and simple value types, use this one. Use getClass()
+    // when a hierarchy really does add state, the way A1b's does.
+//    @Override
+//    public boolean equals(final Object other) {
+//        if (this == other) {
+//            return true;
+//        }
+//        return other instanceof Point otherPoint
+//            && myX == otherPoint.myX && myY == otherPoint.myY;
+//    }
 
     /**
      * Built from the same fields equals compares, so equal points always have

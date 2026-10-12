@@ -1,0 +1,12 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <codeStyleSettings language="JAVA">
+      <!-- Cmd+/ puts // in the first column with no space after it, and removes
+           exactly that. The commented-out equals in Point.java is written the
+           same way, so toggling it never changes the indentation. -->
+      <option name="LINE_COMMENT_AT_FIRST_COLUMN" value="true" />
+      <option name="LINE_COMMENT_ADD_SPACE" value="false" />
+      <option name="BLOCK_COMMENT_AT_FIRST_COLUMN" value="true" />
+    </codeStyleSettings>
+  </code_scheme>
+</component>
