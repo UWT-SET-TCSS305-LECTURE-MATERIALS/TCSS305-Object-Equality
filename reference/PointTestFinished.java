@@ -15,6 +15,8 @@ package edu.uw.tcss.equality;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashSet;
@@ -40,6 +42,61 @@ class PointTestFinished {
 
     /** A new x coordinate for the mutation demo. */
     private static final int NEW_X = 500;
+
+    // ============ constructor exceptions ============
+
+    /** The copy constructor rejects null. Provided in the starter. */
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testCopyConstructorRejectsNull() {
+        assertThrows(NullPointerException.class,
+            () -> new Point(null),
+            "Copying a null Point should throw NullPointerException");
+    }
+
+    /** A negative x is rejected. Written live in lecture. */
+    @Test
+    void testConstructorRejectsNegativeX() {
+        assertThrows(IllegalArgumentException.class,
+            () -> new Point(-1, Y),
+            "A negative x should throw IllegalArgumentException");
+    }
+
+    /** A negative y is rejected: its own test, so a failure names the coordinate. */
+    @Test
+    void testConstructorRejectsNegativeY() {
+        assertThrows(IllegalArgumentException.class,
+            () -> new Point(X, -1),
+            "A negative y should throw IllegalArgumentException");
+    }
+
+    /** Zero is the boundary and is allowed. */
+    @Test
+    void testConstructorAcceptsZero() {
+        final Point origin = new Point(0, 0);
+
+        assertEquals(0, origin.getX(), "x of the origin should be 0");
+    }
+
+    /** assertThrows returns the exception, so the test can inspect it. */
+    @Test
+    void testNegativeXMessageNamesTheCoordinate() {
+        final IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+            () -> new Point(-1, Y));
+
+        assertTrue(thrown.getMessage().contains("x"), "The message should say which coordinate was bad");
+    }
+
+    /** A copy is equal to the original but is a different object. */
+    @Test
+    void testCopyConstructorMakesAnEqualCopy() {
+        final Point original = new Point(X, Y);
+        final Point copy = new Point(original);
+
+        assertAll("copy",
+            () -> assertEquals(original, copy, "The copy should equal the original"),
+            () -> assertNotSame(original, copy, "The copy should be a different object"));
+    }
 
     // ============ equals contract ============
 

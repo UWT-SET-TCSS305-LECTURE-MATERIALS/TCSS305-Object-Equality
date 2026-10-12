@@ -7,21 +7,31 @@ package edu.uw.tcss.equality;
 import java.util.Objects;
 
 /**
- * A point on an integer grid.
+ * A point on a screen grid, where coordinates are never negative.
  *
  * <p>Point is mutable on purpose. The setters let the lecture show aliasing
  * (two variables, one object) and what happens to a mutable object stored in a
  * HashSet when its state changes.
+ *
+ * <p>It also validates its input, so the lecture can demo testing for
+ * exceptions: a negative coordinate is an IllegalArgumentException, and copying
+ * a null Point is a NullPointerException.
  *
  * @author Charles Bryan
  * @version Autumn 2026
  */
 public class Point {
 
-    /** The x coordinate. */
+    /** Name of the x coordinate, for exception messages. */
+    private static final String X_NAME = "x";
+
+    /** Name of the y coordinate, for exception messages. */
+    private static final String Y_NAME = "y";
+
+    /** The x coordinate, never negative. */
     private int myX;
 
-    /** The y coordinate. */
+    /** The y coordinate, never negative. */
     private int myY;
 
     /**
@@ -29,10 +39,21 @@ public class Point {
      *
      * @param x the x coordinate
      * @param y the y coordinate
+     * @throws IllegalArgumentException if x or y is negative
      */
     public Point(final int x, final int y) {
-        myX = x;
-        myY = y;
+        myX = requireNonNegative(x, X_NAME);
+        myY = requireNonNegative(y, Y_NAME);
+    }
+
+    /**
+     * Creates a point at the same coordinates as another point.
+     *
+     * @param other the point to copy
+     * @throws NullPointerException if other is null
+     */
+    public Point(final Point other) {
+        this(Objects.requireNonNull(other, "other must not be null").myX, other.myY);
     }
 
     /**
@@ -57,18 +78,35 @@ public class Point {
      * Changes the x coordinate.
      *
      * @param x the new x coordinate
+     * @throws IllegalArgumentException if x is negative
      */
     public void setX(final int x) {
-        myX = x;
+        myX = requireNonNegative(x, X_NAME);
     }
 
     /**
      * Changes the y coordinate.
      *
      * @param y the new y coordinate
+     * @throws IllegalArgumentException if y is negative
      */
     public void setY(final int y) {
-        myY = y;
+        myY = requireNonNegative(y, Y_NAME);
+    }
+
+    /**
+     * Returns the value unchanged, or throws if it is negative.
+     *
+     * @param value the coordinate to check
+     * @param name the coordinate's name, for the exception message
+     * @return value, when it is not negative
+     * @throws IllegalArgumentException if value is negative
+     */
+    private static int requireNonNegative(final int value, final String name) {
+        if (value < 0) {
+            throw new IllegalArgumentException(name + " must not be negative: " + value);
+        }
+        return value;
     }
 
     // ================= equals: two versions, both commented out =================

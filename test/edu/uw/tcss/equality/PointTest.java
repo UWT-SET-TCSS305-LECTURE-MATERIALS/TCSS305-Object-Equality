@@ -9,6 +9,7 @@ package edu.uw.tcss.equality;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -45,8 +46,27 @@ class PointTest {
         assertTrue(result, "A point should be equal to itself");
     }
 
+    /**
+     * The copy constructor rejects null with a NullPointerException.
+     *
+     * <p>IntelliJ flags passing null where the constructor requires an object.
+     * Passing it anyway is the point of the test, so that one warning is
+     * suppressed here, the same way ItemOrderTest does it.
+     */
+    @SuppressWarnings("DataFlowIssue")
+    @Test
+    void testCopyConstructorRejectsNull() {
+        assertThrows(NullPointerException.class,
+            () -> new Point(null),
+            "Copying a null Point should throw NullPointerException");
+    }
+
     /*
-     * Written live in lecture, one contract rule per test:
+     * Written live in lecture:
+     *
+     *   testConstructorRejectsNegativeX   assertThrows IllegalArgumentException
+     *
+     * Then one contract rule per test:
      *
      *   testEqualsIsSymmetric          assert in BOTH orders
      *   testEqualsWithNull             assertNotEquals(point, null), point first
