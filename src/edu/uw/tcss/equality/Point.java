@@ -53,32 +53,26 @@ public class Point {
      * @throws NullPointerException if other is null
      */
     public Point(final Point other) {
-        // Four things are packed into this one line.
+        // There's a lot going on in this one line, so let's take it apart.
         //
-        // 1. this(...) calls the OTHER constructor, Point(int, int), instead of
-        //    repeating its work. That is constructor chaining: the real setup and
-        //    the validation live in one constructor, and this one just feeds it.
-        //    Classic Java requires this(...) to be the first statement. Java 25
-        //    relaxes that a little (statements before it are allowed if they don't
-        //    touch the object being built), but putting it first is still the norm.
+        // this(...) runs the other constructor, Point(int, int), so the setup and
+        // the negative-number check stay in one place. It has traditionally had
+        // to be the first statement in the constructor. Java 25 loosens that rule
+        // a bit, but you'll almost always see it first.
         //
-        // 2. Objects.requireNonNull(other, message) throws a NullPointerException
-        //    with that message when other is null. When other is not null, it
-        //    RETURNS other. Because it hands its argument back, it can sit inline,
-        //    right where other is used: requireNonNull(other, ...).myX.
+        // Objects.requireNonNull(other, message) throws a NullPointerException
+        // with our message if other is null. If it isn't null, the method hands
+        // other back to us, which is why we can put .myX right on the end of it.
         //
-        // 3. Arguments are evaluated left to right, so the null check runs before
-        //    anything reads other. By the time other.myY is evaluated, other is
-        //    known to be non-null. Put the check on the second argument instead
-        //    and other.myX would throw first, with the JVM's generic message
-        //    instead of the one written here.
+        // Java evaluates arguments left to right, so the null check happens before
+        // other.myY is read. If the check were on the second argument, other.myX
+        // would blow up first and you'd get the JVM's message instead of ours.
         //
-        // 4. other.myX reads a PRIVATE field of a different object. That is legal:
-        //    private means private to the Point class, not to one Point object, so
-        //    any Point's code can read any other Point's fields.
+        // other.myX is a private field of a different Point, and Java allows it.
+        // Private is about the class, not the individual object.
         //
-        // Why throw at all instead of quietly making (0, 0)? Fail fast: a null
-        // here is a bug in the caller, and the exception points straight at it.
+        // A null here means the caller has a bug. We throw instead of making a
+        // (0, 0) point, which would hide that bug until much later.
         this(Objects.requireNonNull(other, "other must not be null").myX, other.myY);
     }
 
